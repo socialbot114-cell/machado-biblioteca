@@ -30,16 +30,17 @@ targets:
       - name: Prepare App Store icon metadata
         script: |
           app_bundle="$TARGET_BUILD_DIR/$WRAPPER_NAME"
-          xcrun actool "$SRCROOT/Resources/Assets.xcassets" \
-            --compile "$app_bundle" \
+           xcrun actool "$SRCROOT/Resources/Assets.xcassets" \
+             --compile "$app_bundle" \
             --platform iphoneos \
             --minimum-deployment-target 17.0 \
             --app-icon AppIcon \
             --target-device iphone \
-            --target-device ipad \
-            --output-partial-info-plist "$TARGET_TEMP_DIR/AppIconInfo.plist"
-          cp "$SRCROOT/Resources/AppIcon-120.png" "$app_bundle/AppIcon-120.png"
-          /usr/libexec/PlistBuddy -c 'Set :CFBundleIconName AppIcon' "$app_bundle/Info.plist" || \
+             --target-device ipad \
+             --output-partial-info-plist "$TARGET_TEMP_DIR/AppIconInfo.plist"
+           cp "$SRCROOT/Resources/AppIcon-120.png" "$app_bundle/AppIcon-120.png"
+           cp "$SRCROOT/Resources/PrivacyInfo.xcprivacy" "$app_bundle/PrivacyInfo.xcprivacy"
+           /usr/libexec/PlistBuddy -c 'Set :CFBundleIconName AppIcon' "$app_bundle/Info.plist" || \
             /usr/libexec/PlistBuddy -c 'Add :CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
           /usr/libexec/PlistBuddy -c 'Delete :CFBundleIconFiles' "$app_bundle/Info.plist" || true
           /usr/libexec/PlistBuddy -c 'Add :CFBundleIconFiles array' "$app_bundle/Info.plist"

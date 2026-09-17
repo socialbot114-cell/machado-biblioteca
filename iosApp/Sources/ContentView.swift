@@ -147,81 +147,9 @@ private struct ReaderView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                Text(work.title).font(.largeTitle.bold())
-                Text(work.description).foregroundStyle(.secondary)
-                Text("\(work.chapters) capítulos · \(work.words.formatted()) palavras")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text("Fonte: Wikisource PT")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                if let loadError {
-                    ResourceErrorView(message: loadError)
-                } else if let document {
-                    let chapter = document.chapters[chapterIndex]
-                    Text(chapter.title).font(.title2.bold())
-                    ForEach(Array(chapter.paragraphs.enumerated()), id: \.offset) { index, paragraph in
-                        Text(paragraph)
-                            .font(.body)
-                            .textSelection(.enabled)
-                            .padding(8)
-                            .background(speech.currentParagraphIndex == index ? Color.accentColor.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 8))
-                            .id(index)
-                    }
-                    HStack {
-                        Button("Anterior") { moveChapter(-1) }
-                            .disabled(chapterIndex == 0)
-                        Spacer()
-                        Text("Capítulo \(chapterIndex + 1) de \(document.chapters.count)")
-                            .font(.footnote)
-                        Spacer()
-                        Button("Próximo") { moveChapter(1) }
-                            .disabled(chapterIndex == document.chapters.count - 1)
-                    }
-                    .buttonStyle(.bordered)
-                } else {
-                    ProgressView("Carregando capítulo offline…")
-                }
-                    HStack(spacing: 12) {
-                        Button {
-                            if speech.isSpeaking { speech.pause() }
-                            else if speech.isPaused { speech.resume() }
-                            else { speech.speak(currentParagraphs) }
-                        } label: {
-                            Label(speech.isSpeaking ? "Pausar" : speech.isPaused ? "Continuar" : "Ouvir", systemImage: speech.isSpeaking ? "pause.fill" : "play.fill")
-                        }
-                        .buttonStyle(.borderedProminent)
-                        Button { speech.stop() } label: { Image(systemName: "stop.fill") }
-                            .buttonStyle(.bordered)
-                        Button { speech.previous() } label: { Image(systemName: "backward.fill") }
-                            .buttonStyle(.bordered)
-                        Button { speech.next() } label: { Image(systemName: "forward.fill") }
-                            .buttonStyle(.bordered)
-                        Menu {
-                            Section("Voz local") {
-                                if speech.voices.isEmpty {
-                                    Text("Nenhuma voz pt-BR alternativa instalada")
-                                } else {
-                                    ForEach(speech.voices, id: \.identifier) { voice in
-                                        Button(voice.name) { speech.chooseVoice(voice) }
-                                    }
-                                }
-                            }
-                            Section("Velocidade") {
-                                ForEach([0.42, 0.5, 0.58, 0.68], id: \.self) { value in
-                                    Button("\(String(format: "%.1f", value / 0.5))x") { speech.rate = value }
-                                }
-                            }
-                        } label: { Image(systemName: "slider.horizontal.3") }
-                            .buttonStyle(.bordered)
-                    }
-                    .disabled(document == nil || loadError != nil)
-                    if speech.totalParagraphs > 0 {
-                        ProgressView(value: Double(max(speech.currentParagraphIndex + 1, 0)), total: Double(speech.totalParagraphs))
-                        Text(speech.isSpeaking || speech.isPaused ? "Parágrafo \(max(speech.currentParagraphIndex + 1, 1)) de \(speech.totalParagraphs)" : "Narração finalizada")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    readingContent
+                    narrationControls
+                    narrationProgress
                 }
                 .padding()
             }
@@ -233,6 +161,86 @@ private struct ReaderView: View {
         .navigationTitle(work.title)
         .navigationBarTitleDisplayMode(.inline)
         .task { loadDocument(for: work.id) }
+    }
+
+    @ViewBuilder
+    private var readingContent: some View {
+        Text(work.title).font(.largeTitle.bold())
+        Text(work.description).foregroundStyle(.secondary)
+        Text("\(work.chapters) capítulos · \(work.words.formatted()) palavras")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        Text("Fonte: Wikisource PT")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+        if let loadError {
+            ResourceErrorView(message: loadError)
+        } else if let document {
+            let chapter = document.chapters[chapterIndex]
+            Text(chapter.title).font(.title2.bold())
+            ForEach(Array(chapter.paragraphs.enumerated()), id: \.offset) { index, paragraph in
+                Text(paragraph)
+                    .font(.body)
+                    .textSelection(.enabled)
+                    .padding(8)
+                    .background(speech.currentParagraphIndex == index ? Color.accentColor.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 8))
+                    .id(index)
+            }
+            HStack {
+                Button("Anterior") { moveChapter(-1) }.disabled(chapterIndex == 0)
+                Spacer()
+                Text("Capítulo \(chapterIndex + 1) de \(document.chapters.count)").font(.footnote)
+                Spacer()
+                Button("Próximo") { moveChapter(1) }.disabled(chapterIndex == document.chapters.count - 1)
+            }
+            .buttonStyle(.bordered)
+        } else {
+            ProgressView("Carregando capítulo offline…")
+        }
+    }
+
+    private var narrationControls: some View {
+        HStack(spacing: 12) {
+            Button {
+                if speech.isSpeaking { speech.pause() }
+                else if speech.isPaused { speech.resume() }
+                else { speech.speak(currentParagraphs) }
+            } label: {
+                Label(speech.isSpeaking ? "Pausar" : speech.isPaused ? "Continuar" : "Ouvir", systemImage: speech.isSpeaking ? "pause.fill" : "play.fill")
+            }
+            .buttonStyle(.borderedProminent)
+            Button { speech.stop() } label: { Image(systemName: "stop.fill") }.buttonStyle(.bordered)
+            Button { speech.previous() } label: { Image(systemName: "backward.fill") }.buttonStyle(.bordered)
+            Button { speech.next() } label: { Image(systemName: "forward.fill") }.buttonStyle(.bordered)
+            Menu {
+                Section("Voz local") {
+                    if speech.voices.isEmpty {
+                        Text("Nenhuma voz pt-BR alternativa instalada")
+                    } else {
+                        ForEach(speech.voices, id: \.identifier) { voice in
+                            Button(voice.name) { speech.chooseVoice(voice) }
+                        }
+                    }
+                }
+                Section("Velocidade") {
+                    ForEach([0.42, 0.5, 0.58, 0.68], id: \.self) { value in
+                        Button("\(String(format: "%.1f", value / 0.5))x") { speech.rate = value }
+                    }
+                }
+            } label: { Image(systemName: "slider.horizontal.3") }
+                .buttonStyle(.bordered)
+        }
+        .disabled(document == nil || loadError != nil)
+    }
+
+    @ViewBuilder
+    private var narrationProgress: some View {
+        if speech.totalParagraphs > 0 {
+            ProgressView(value: Double(max(speech.currentParagraphIndex + 1, 0)), total: Double(speech.totalParagraphs))
+            Text(speech.isSpeaking || speech.isPaused ? "Parágrafo \(max(speech.currentParagraphIndex + 1, 1)) de \(speech.totalParagraphs)" : "Narração finalizada")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 
     private var currentParagraphs: [String] {

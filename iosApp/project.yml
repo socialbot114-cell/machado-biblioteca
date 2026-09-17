@@ -47,6 +47,16 @@ targets:
              --output-partial-info-plist "$TARGET_TEMP_DIR/AppIconInfo.plist"
            cp "$SRCROOT/Resources/AppIcon-120.png" "$app_bundle/AppIcon-120.png"
            /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion 2' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Delete :UISupportedInterfaceOrientations' "$app_bundle/Info.plist" || true
+           /usr/libexec/PlistBuddy -c 'Add :UISupportedInterfaceOrientations array' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Add :UISupportedInterfaceOrientations:1 string UIInterfaceOrientationPortraitUpsideDown' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Add :UISupportedInterfaceOrientations:2 string UIInterfaceOrientationLandscapeLeft' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Add :UISupportedInterfaceOrientations:3 string UIInterfaceOrientationLandscapeRight' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Delete :UISupportedInterfaceOrientations~ipad' "$app_bundle/Info.plist" || true
+           /usr/libexec/PlistBuddy -c 'Copy :UISupportedInterfaceOrientations :UISupportedInterfaceOrientations~ipad' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Delete :UILaunchScreen' "$app_bundle/Info.plist" || true
+           /usr/libexec/PlistBuddy -c 'Add :UILaunchScreen dict' "$app_bundle/Info.plist"
            /usr/libexec/PlistBuddy -c 'Set :CFBundleIconName AppIcon' "$app_bundle/Info.plist" || \
             /usr/libexec/PlistBuddy -c 'Add :CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
           /usr/libexec/PlistBuddy -c 'Delete :CFBundleIconFiles' "$app_bundle/Info.plist" || true

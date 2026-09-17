@@ -53,7 +53,6 @@ targets:
     settings:
       base:
         INFOPLIST_KEY_CFBundleDisplayName: Machado de Assis
-        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: A narração usa a voz local do sistema.
         INFOPLIST_KEY_UIBackgroundModes:
           - audio
         INFOPLIST_KEY_CFBundleIconName: AppIcon

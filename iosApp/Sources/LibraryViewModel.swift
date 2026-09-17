@@ -41,11 +41,15 @@ final class LibraryViewModel: ObservableObject {
 enum BundleResource {
     static func data(named name: String, fileExtension: String, subdirectory: String? = nil) throws -> Data {
         let bundles = [Bundle.main] + Bundle.allFrameworks + Bundle.allBundles
-        let directories = [subdirectory, "Resources", "Resources/Texts", nil].compactMap { $0 }
+        let directories = [subdirectory, "Texts", "Resources", "Resources/Texts"].compactMap { $0 }
         let urls = bundles.flatMap { bundle in
-            directories.compactMap { directory in
+            var matches = directories.compactMap { directory in
                 bundle.url(forResource: name, withExtension: fileExtension, subdirectory: directory)
             }
+            if let rootResource = bundle.url(forResource: name, withExtension: fileExtension) {
+                matches.append(rootResource)
+            }
+            return matches
         }
         guard let url = urls.first else { throw BundleResourceError.missing(name) }
         do { return try Data(contentsOf: url) }

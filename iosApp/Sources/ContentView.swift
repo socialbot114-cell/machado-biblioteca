@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 struct ContentView: View {
     @StateObject private var library = LibraryViewModel()
@@ -35,7 +36,10 @@ private struct HomeView: View {
                             .buttonStyle(.plain)
                     }
                     Text("Continue lendo").font(.title2.bold())
-                    ForEach(library.works.prefix(3)) { work in WorkRow(work: work) }
+                    ForEach(library.works.prefix(3)) { work in
+                        NavigationLink(value: work) { WorkRow(work: work) }
+                            .buttonStyle(.plain)
+                    }
                 }
                 .padding()
             }
@@ -140,8 +144,9 @@ private struct ReaderView: View {
     @State private var loadError: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
                 Text(work.title).font(.largeTitle.bold())
                 Text(work.description).foregroundStyle(.secondary)
                 Text("\(work.chapters) capítulos · \(work.words.formatted()) palavras")
@@ -155,10 +160,13 @@ private struct ReaderView: View {
                 } else if let document {
                     let chapter = document.chapters[chapterIndex]
                     Text(chapter.title).font(.title2.bold())
-                    ForEach(Array(chapter.paragraphs.enumerated()), id: \.offset) { _, paragraph in
+                    ForEach(Array(chapter.paragraphs.enumerated()), id: \.offset) { index, paragraph in
                         Text(paragraph)
                             .font(.body)
                             .textSelection(.enabled)
+                            .padding(8)
+                            .background(speech.currentParagraphIndex == index ? Color.accentColor.opacity(0.14) : .clear, in: RoundedRectangle(cornerRadius: 8))
+                            .id(index)
                     }
                     HStack {
                         Button("Anterior") { moveChapter(-1) }
@@ -174,13 +182,53 @@ private struct ReaderView: View {
                 } else {
                     ProgressView("Carregando capítulo offline…")
                 }
-                Button(speech.isSpeaking ? "Pausar narração" : "Ouvir capítulo") {
-                    speech.isSpeaking ? speech.pause() : speech.speak(currentParagraphs.joined(separator: " "))
+                    HStack(spacing: 12) {
+                        Button {
+                            if speech.isSpeaking { speech.pause() }
+                            else if speech.isPaused { speech.resume() }
+                            else { speech.speak(currentParagraphs) }
+                        } label: {
+                            Label(speech.isSpeaking ? "Pausar" : speech.isPaused ? "Continuar" : "Ouvir", systemImage: speech.isSpeaking ? "pause.fill" : "play.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        Button { speech.stop() } label: { Image(systemName: "stop.fill") }
+                            .buttonStyle(.bordered)
+                        Button { speech.previous() } label: { Image(systemName: "backward.fill") }
+                            .buttonStyle(.bordered)
+                        Button { speech.next() } label: { Image(systemName: "forward.fill") }
+                            .buttonStyle(.bordered)
+                        Menu {
+                            Section("Voz local") {
+                                if speech.voices.isEmpty {
+                                    Text("Nenhuma voz pt-BR alternativa instalada")
+                                } else {
+                                    ForEach(speech.voices, id: \.identifier) { voice in
+                                        Button(voice.name) { speech.chooseVoice(voice) }
+                                    }
+                                }
+                            }
+                            Section("Velocidade") {
+                                ForEach([0.42, 0.5, 0.58, 0.68], id: \.self) { value in
+                                    Button("\(String(format: "%.1f", value / 0.5))x") { speech.rate = value }
+                                }
+                            }
+                        } label: { Image(systemName: "slider.horizontal.3") }
+                            .buttonStyle(.bordered)
+                    }
+                    .disabled(document == nil || loadError != nil)
+                    if speech.totalParagraphs > 0 {
+                        ProgressView(value: Double(max(speech.currentParagraphIndex + 1, 0)), total: Double(speech.totalParagraphs))
+                        Text(speech.isSpeaking || speech.isPaused ? "Parágrafo \(max(speech.currentParagraphIndex + 1, 1)) de \(speech.totalParagraphs)" : "Narração finalizada")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(document == nil || loadError != nil)
+                .padding()
             }
-            .padding()
+            .onChange(of: speech.currentParagraphIndex) { _, index in
+                guard index >= 0 else { return }
+                withAnimation { proxy.scrollTo(index, anchor: .center) }
+            }
         }
         .navigationTitle(work.title)
         .navigationBarTitleDisplayMode(.inline)

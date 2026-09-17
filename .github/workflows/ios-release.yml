@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v5
       - name: Validate iOS resources before archive
@@ -79,8 +79,7 @@ jobs:
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="Machado Biblioteca Original App Store 2026" \
             DEVELOPMENT_TEAM=SRN7AW424S \
-            TARGETED_DEVICE_FAMILY=1 \
-            GENERATE_INFOPLIST_FILE=YES \
+            TARGETED_DEVICE_FAMILY="1,2" \
             ASSETCATALOG_COMPILER_APPICON_NAME=AppIcon \
             INFOPLIST_KEY_CFBundleIconName=AppIcon \
             INFOPLIST_KEY_UILaunchScreen_Generation=YES \
@@ -91,6 +90,17 @@ jobs:
             -archivePath "$RUNNER_TEMP/MachadoBiblioteca.xcarchive" \
             -exportOptionsPlist iosApp/ExportOptions.plist \
             -exportPath "$RUNNER_TEMP/export"
+      - name: Verify archived app
+        run: |
+          app=("$RUNNER_TEMP"/MachadoBiblioteca.xcarchive/Products/Applications/*.app)
+          test -f "${app[0]}/Assets.car"
+          test -f "${app[0]}/catalog.json"
+          test -f "${app[0]}/PrivacyInfo.xcprivacy"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${app[0]}/Info.plist")" = "br.com.machadodeassis.biblioteca"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "${app[0]}/Info.plist")" = "1.0"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${app[0]}/Info.plist")" = "2"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIconName' "${app[0]}/Info.plist"
+          codesign --verify --deep --strict "${app[0]}"
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
@@ -100,9 +110,19 @@ jobs:
         run: |
           ipa=("$RUNNER_TEMP"/export/*.ipa)
           test -f "${ipa[0]}"
+          rm -rf "$RUNNER_TEMP/ipa-unpacked"
+          mkdir -p "$RUNNER_TEMP/ipa-unpacked"
+          unzip -q "${ipa[0]}" -d "$RUNNER_TEMP/ipa-unpacked"
           unzip -l "${ipa[0]}" | grep -q '/catalog.json$'
           test "$(unzip -l "${ipa[0]}" | grep -E -c '/Texts/[^/]+\.json$')" -eq 31
           unzip -p "${ipa[0]}" "Payload/*.app/catalog.json" > "$RUNNER_TEMP/ipa-catalog.json"
+          app=("$RUNNER_TEMP"/ipa-unpacked/Payload/*.app)
+          test -f "${app[0]}/Assets.car"
+          test -f "${app[0]}/PrivacyInfo.xcprivacy"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${app[0]}/Info.plist")" = "br.com.machadodeassis.biblioteca"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "${app[0]}/Info.plist")" = "1.0"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${app[0]}/Info.plist")" = "2"
+          codesign --verify --deep --strict "${app[0]}"
           python3 - "$RUNNER_TEMP/ipa-catalog.json" "${ipa[0]}" <<'PY'
           import json
           import subprocess

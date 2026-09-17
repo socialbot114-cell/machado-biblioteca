@@ -223,7 +223,7 @@ private struct ReaderView: View {
                     }
                 }
                 Section("Velocidade") {
-                    ForEach([0.42, 0.5, 0.58, 0.68], id: \.self) { value in
+                    ForEach([0.42, 0.5, 0.58, 0.68] as [Float], id: \.self) { value in
                         Button("\(String(format: "%.1f", value / 0.5))x") { speech.rate = value }
                     }
                 }

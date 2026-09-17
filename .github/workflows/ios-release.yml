@@ -99,7 +99,8 @@ jobs:
           done
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${app[0]}/Info.plist")" = "br.com.machadodeassis.biblioteca" || { echo "Unexpected bundle identifier"; exit 1; }
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "${app[0]}/Info.plist")" = "1.0" || { echo "Unexpected marketing version"; exit 1; }
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${app[0]}/Info.plist")" = "2" || { echo "Unexpected build version"; exit 1; }
+          bundle_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "${app[0]}/Info.plist")"
+          test "$bundle_version" = "2" || { echo "Unexpected build version: $bundle_version"; exit 1; }
           /usr/libexec/PlistBuddy -c 'Print :CFBundleIconName' "${app[0]}/Info.plist"
           codesign --verify --deep --strict "${app[0]}"
       - name: Upload IPA artifact

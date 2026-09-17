@@ -22,8 +22,15 @@ targets:
     platform: iOS
     sources:
       - path: Sources
-    resources:
-      - path: Resources
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
+      - path: Resources/Texts
+        type: folder
+        buildPhase: resources
+      - path: Resources/catalog.json
+        buildPhase: resources
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
     info:
       path: Info.plist
     postCompileScripts:
@@ -39,7 +46,6 @@ targets:
              --target-device ipad \
              --output-partial-info-plist "$TARGET_TEMP_DIR/AppIconInfo.plist"
            cp "$SRCROOT/Resources/AppIcon-120.png" "$app_bundle/AppIcon-120.png"
-           cp "$SRCROOT/Resources/PrivacyInfo.xcprivacy" "$app_bundle/PrivacyInfo.xcprivacy"
            /usr/libexec/PlistBuddy -c 'Set :CFBundleIconName AppIcon' "$app_bundle/Info.plist" || \
             /usr/libexec/PlistBuddy -c 'Add :CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
           /usr/libexec/PlistBuddy -c 'Delete :CFBundleIconFiles' "$app_bundle/Info.plist" || true

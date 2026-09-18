@@ -61,7 +61,8 @@ targets:
            /usr/libexec/PlistBuddy -c 'Delete :UILaunchScreen' "$app_bundle/Info.plist" || true
            /usr/libexec/PlistBuddy -c 'Add :UILaunchScreen dict' "$app_bundle/Info.plist"
            /usr/libexec/PlistBuddy -c 'Set :CFBundleIconName AppIcon' "$app_bundle/Info.plist" || \
-            /usr/libexec/PlistBuddy -c 'Add :CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
+             /usr/libexec/PlistBuddy -c 'Add :CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c 'Set :CFBundleShortVersionString 1.1' "$app_bundle/Info.plist"
           /usr/libexec/PlistBuddy -c 'Delete :CFBundleIconFiles' "$app_bundle/Info.plist" || true
           /usr/libexec/PlistBuddy -c 'Add :CFBundleIconFiles array' "$app_bundle/Info.plist"
           /usr/libexec/PlistBuddy -c 'Add :CFBundleIconFiles:0 string AppIcon-120' "$app_bundle/Info.plist"

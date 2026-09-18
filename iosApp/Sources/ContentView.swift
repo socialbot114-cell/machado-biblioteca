@@ -406,19 +406,196 @@ private struct MyLibraryView: View {
     }
 }
 
-private struct WorkSection: View { let title: String; let works: ArraySlice<WorkSummary>; @ObservedObject var library: LibraryViewModel; var body: some View { VStack(alignment: .leading, spacing: 8) { Text(title).font(.title3.bold()); ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 12) { ForEach(Array(works)) { work in NavigationLink(destination: WorkDetailView(work: work, library: library)) { VStack(alignment: .leading) { CoverView(work: work).frame(width: 126, height: 176); Text(work.title).font(.headline).lineLimit(2); Text("\(work.year) • \(work.category)").font(.caption).foregroundStyle(.secondary) } }.buttonStyle(.plain) } } } } }
-private struct WorkCarousel: View { let works: [WorkSummary]; @ObservedObject var library: LibraryViewModel; var body: some View { ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 12) { ForEach(works) { work in NavigationLink(destination: WorkDetailView(work: work, library: library)) { WorkRow(work: work, progress: library.workProgress(work.id)).frame(width: 280) }.buttonStyle(.plain) } } } }
-private struct WorkRow: View { let work: WorkSummary; let progress: Double; var body: some View { HStack(spacing: 12) { CoverView(work: work).frame(width: 54, height: 76); VStack(alignment: .leading, spacing: 5) { Text(work.title).font(.headline); Text("\(work.year) • \(work.category)").font(.caption).foregroundStyle(.secondary); ProgressView(value: progress / 100).tint(MachadoStyle.gold) } }.padding(12).background(MachadoStyle.paper, in: RoundedRectangle(cornerRadius: 16)) } }
-private struct CoverView: View { let work: WorkSummary; var body: some View { ZStack(alignment: .bottomLeading) { LinearGradient(colors: work.coverPalette.map(Color.init(hex:)), startPoint: .top, endPoint: .bottom); VStack(alignment: .leading) { Text("MACHADO DE ASSIS").font(.system(size: 7, weight: .bold)).tracking(1); Spacer(); Text(work.title).font(.system(size: 16, weight: .bold, design: .serif)).lineLimit(4); Text(work.category.uppercased()).font(.system(size: 8, weight: .bold)) }.foregroundStyle(.white).padding(10) }.clipShape(RoundedRectangle(cornerRadius: 10)) } }
-private struct CharacterRow: View { let character: CharacterInfo; var body: some View { HStack(spacing: 14) { CharacterImage(character: character).frame(width: 64, height: 64); VStack(alignment: .leading) { Text(character.name).font(.headline); Text(character.work).font(.caption).foregroundStyle(.secondary); Text(character.summary).font(.caption).foregroundStyle(.secondary).lineLimit(2) }; Spacer(); Image(systemName: "chevron.right").foregroundStyle(.tertiary) }.padding(.vertical, 5) } }
-private struct CharacterImage: View { let character: CharacterInfo; var body: some View { Group { if let imageName = character.imageName, let image = UIImage(named: imageName) { Image(uiImage: image).resizable().scaledToFill() } else { ZStack { MachadoStyle.green; Text(String(character.name.prefix(1))).font(.largeTitle.bold()).foregroundStyle(.white) } } }.clipShape(Circle()) } }
-private struct HomeAction: View { let title: String; let subtitle: String; let icon: String; let action: () -> Void; var body: some View { Button(action: action) { HomeActionLabel(title: title, subtitle: subtitle, icon: icon) }.buttonStyle(.plain) } }
-private struct HomeActionLabel: View { let title: String; let subtitle: String; let icon: String; var body: some View { HStack { Image(systemName: icon).foregroundStyle(MachadoStyle.gold); VStack(alignment: .leading) { Text(title).font(.headline).foregroundStyle(MachadoStyle.green); Text(subtitle).font(.caption).foregroundStyle(.secondary) } } .frame(maxWidth: .infinity, alignment: .leading).padding(14).background(MachadoStyle.paper, in: RoundedRectangle(cornerRadius: 16)) } }
-private struct SectionHeader: View { let title: String; let action: String; var body: some View { HStack { Text(title).font(.title3.bold()); Spacer(); Text(action).font(.caption).foregroundStyle(MachadoStyle.green) } }
-private struct FilterChip: View { let title: String; let selected: Bool; let action: () -> Void; var body: some View { Button(title, action: action).font(.subheadline.bold()).padding(.horizontal, 13).padding(.vertical, 8).foregroundStyle(selected ? .white : MachadoStyle.green).background(selected ? MachadoStyle.green : MachadoStyle.paper, in: Capsule()) } }
-private struct DetailSection: View { let title: String; let text: String; var body: some View { VStack(alignment: .leading, spacing: 5) { Text(title.uppercased()).font(.caption.bold()).tracking(1).foregroundStyle(MachadoStyle.gold); Text(text).font(.system(.body, design: .serif)).lineSpacing(4) } }
-private struct Metric: View { let value: String; let label: String; var body: some View { VStack { Text(value).font(.title2.bold()).foregroundStyle(MachadoStyle.green); Text(label).font(.caption).foregroundStyle(.secondary) }.frame(maxWidth: .infinity) } }
-private struct ResourceErrorView: View { let message: String; var body: some View { VStack(spacing: 8) { Label("Não foi possível carregar a biblioteca", systemImage: "exclamationmark.triangle").font(.headline); Text(message).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center) }.padding() } }
+private struct WorkSection: View {
+    let title: String
+    let works: ArraySlice<WorkSummary>
+    @ObservedObject var library: LibraryViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.title3.bold())
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(Array(works)) { work in
+                        NavigationLink(destination: WorkDetailView(work: work, library: library)) {
+                            VStack(alignment: .leading) {
+                                CoverView(work: work).frame(width: 126, height: 176)
+                                Text(work.title).font(.headline).lineLimit(2)
+                                Text("\(work.year) • \(work.category)").font(.caption).foregroundStyle(.secondary)
+                            }
+                        }.buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct WorkCarousel: View {
+    let works: [WorkSummary]
+    @ObservedObject var library: LibraryViewModel
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(works) { work in
+                    NavigationLink(destination: WorkDetailView(work: work, library: library)) {
+                        WorkRow(work: work, progress: library.workProgress(work.id)).frame(width: 280)
+                    }.buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
+private struct WorkRow: View {
+    let work: WorkSummary
+    let progress: Double
+
+    var body: some View {
+        HStack(spacing: 12) {
+            CoverView(work: work).frame(width: 54, height: 76)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(work.title).font(.headline)
+                Text("\(work.year) • \(work.category)").font(.caption).foregroundStyle(.secondary)
+                ProgressView(value: progress / 100).tint(MachadoStyle.gold)
+            }
+        }
+        .padding(12)
+        .background(MachadoStyle.paper, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+private struct CoverView: View {
+    let work: WorkSummary
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            LinearGradient(colors: work.coverPalette.map(Color.init(hex:)), startPoint: .top, endPoint: .bottom)
+            VStack(alignment: .leading) {
+                Text("MACHADO DE ASSIS").font(.system(size: 7, weight: .bold)).tracking(1)
+                Spacer()
+                Text(work.title).font(.system(size: 16, weight: .bold, design: .serif)).lineLimit(4)
+                Text(work.category.uppercased()).font(.system(size: 8, weight: .bold))
+            }.foregroundStyle(.white).padding(10)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+private struct CharacterRow: View {
+    let character: CharacterInfo
+
+    var body: some View {
+        HStack(spacing: 14) {
+            CharacterImage(character: character).frame(width: 64, height: 64)
+            VStack(alignment: .leading) {
+                Text(character.name).font(.headline)
+                Text(character.work).font(.caption).foregroundStyle(.secondary)
+                Text(character.summary).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+            }
+            Spacer()
+            Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+        }.padding(.vertical, 5)
+    }
+}
+
+private struct CharacterImage: View {
+    let character: CharacterInfo
+
+    var body: some View {
+        Group {
+            if let imageName = character.imageName, let image = UIImage(named: imageName) {
+                Image(uiImage: image).resizable().scaledToFill()
+            } else {
+                ZStack { MachadoStyle.green; Text(String(character.name.prefix(1))).font(.largeTitle.bold()).foregroundStyle(.white) }
+            }
+        }.clipShape(Circle())
+    }
+}
+
+private struct HomeAction: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) { HomeActionLabel(title: title, subtitle: subtitle, icon: icon) }.buttonStyle(.plain)
+    }
+}
+
+private struct HomeActionLabel: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+
+    var body: some View {
+        HStack {
+            Image(systemName: icon).foregroundStyle(MachadoStyle.gold)
+            VStack(alignment: .leading) { Text(title).font(.headline).foregroundStyle(MachadoStyle.green); Text(subtitle).font(.caption).foregroundStyle(.secondary) }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(MachadoStyle.paper, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+private struct SectionHeader: View {
+    let title: String
+    let action: String
+
+    var body: some View {
+        HStack { Text(title).font(.title3.bold()); Spacer(); Text(action).font(.caption).foregroundStyle(MachadoStyle.green) }
+    }
+}
+
+private struct FilterChip: View {
+    let title: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(title, action: action)
+            .font(.subheadline.bold())
+            .padding(.horizontal, 13)
+            .padding(.vertical, 8)
+            .foregroundStyle(selected ? .white : MachadoStyle.green)
+            .background(selected ? MachadoStyle.green : MachadoStyle.paper, in: Capsule())
+    }
+}
+
+private struct DetailSection: View {
+    let title: String
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title.uppercased()).font(.caption.bold()).tracking(1).foregroundStyle(MachadoStyle.gold)
+            Text(text).font(.system(.body, design: .serif)).lineSpacing(4)
+        }
+    }
+}
+
+private struct Metric: View {
+    let value: String
+    let label: String
+
+    var body: some View {
+        VStack { Text(value).font(.title2.bold()).foregroundStyle(MachadoStyle.green); Text(label).font(.caption).foregroundStyle(.secondary) }.frame(maxWidth: .infinity)
+    }
+}
+
+private struct ResourceErrorView: View {
+    let message: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Label("Não foi possível carregar a biblioteca", systemImage: "exclamationmark.triangle").font(.headline)
+            Text(message).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+        }.padding()
+    }
+}
 
 private extension View { func sectionLabel() -> some View { self.font(.caption.bold()).tracking(1).foregroundStyle(MachadoStyle.gold).padding(.top, 8) } }
 private extension Array where Element == String { func chunked(into size: Int) -> [[String]] { stride(from: 0, to: count, by: size).map { Array(self[$0..<Swift.min($0 + size, count)]) } } }

@@ -33,7 +33,7 @@ Existe uma segunda app incorreta, criada durante os testes:
 
 - Workflow final aprovado: `34540409036`
 - URL: https://github.com/socialbot114-cell/machado-biblioteca/actions/runs/34540409036
-- Próximo build correto: `1.0 (2)` na app `6810760794`.
+- Próxima atualização: `1.1 (22)` na app `6810760794`.
 - Build ID: `12324d89-89e4-4025-9596-4c6de3b0b8da`
 - O build foi associado a `App Store version 1.0`.
 - O workflow gera archive assinado, exporta IPA e envia ao TestFlight.
@@ -107,6 +107,12 @@ Secrets obsoletos PKCS#12 foram removidos:
 3. A URL da politica de privacidade da localizacao `pt-BR` ainda aparece como nula na API; usar o site publico de privacidade.
 4. Verificar export compliance e demais perguntas finais no App Store Connect.
 5. Depois de corrigir essas pendencias, validar a versao e enviar para revisao.
+
+## Atualização 1.1
+
+- Paridade iOS com o produto Android: Home editorial, capas, busca integral, progresso, favoritos, citações, temas, leitor paginado e Universo Machado.
+- Build planejado: `1.1 (22)`.
+- O workflow de release executa XCTest, valida os recursos visuais no archive/IPA e envia automaticamente ao TestFlight.
 
 ## Conteudo do app
 

@@ -20,3 +20,5 @@ jobs:
         run: xcodegen generate --spec project.yml
       - name: Build simulator target
         run: xcodebuild -project iosApp/MachadoBiblioteca.xcodeproj -scheme MachadoBiblioteca -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
+      - name: Run iOS unit tests
+        run: xcodebuild test -project iosApp/MachadoBiblioteca.xcodeproj -scheme MachadoBiblioteca -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' CODE_SIGNING_ALLOWED=NO

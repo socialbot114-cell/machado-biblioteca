@@ -82,6 +82,7 @@ jobs:
             PROVISIONING_PROFILE_SPECIFIER="Machado Biblioteca Original App Store 2026" \
              DEVELOPMENT_TEAM=SRN7AW424S \
              CURRENT_PROJECT_VERSION=22 \
+             MARKETING_VERSION=1.1 \
              TARGETED_DEVICE_FAMILY="1,2" \
             ASSETCATALOG_COMPILER_APPICON_NAME=AppIcon \
             INFOPLIST_KEY_CFBundleIconName=AppIcon \

@@ -31,7 +31,7 @@ private struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     HStack(spacing: 12) {
-                        Image("logo_machado").resizable().scaledToFill().frame(width: 48, height: 48).clipShape(RoundedRectangle(cornerRadius: 12))
+                        BundledImage(name: "logo_machado").frame(width: 48, height: 48).clipShape(RoundedRectangle(cornerRadius: 12))
                         VStack(alignment: .leading) {
                             Text("Machado de Assis").font(.title2.bold()).foregroundStyle(MachadoStyle.green)
                             Text("Biblioteca, voz e universo").font(.subheadline).foregroundStyle(.secondary)
@@ -115,7 +115,7 @@ private struct HeroCarousel: View {
 
     private func heroCard(_ hero: (String, String, String)) -> some View {
         ZStack(alignment: .bottomLeading) {
-            Image(hero.0).resizable().scaledToFill()
+            BundledImage(name: hero.0).scaledToFill()
             LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
             VStack(alignment: .leading, spacing: 4) {
                 Text(hero.2).font(.title3.bold()).foregroundStyle(.white)
@@ -505,12 +505,32 @@ private struct CharacterImage: View {
 
     var body: some View {
         Group {
-            if let imageName = character.imageName, let image = UIImage(named: imageName) {
-                Image(uiImage: image).resizable().scaledToFill()
+            if let imageName = character.imageName {
+                BundledImage(name: imageName).scaledToFill()
             } else {
                 ZStack { MachadoStyle.green; Text(String(character.name.prefix(1))).font(.largeTitle.bold()).foregroundStyle(.white) }
             }
         }.clipShape(Circle())
+    }
+}
+
+private struct BundledImage: View {
+    let name: String
+
+    var body: some View {
+        if let image = Self.load(name) {
+            Image(uiImage: image).resizable()
+        } else {
+            MachadoStyle.paper
+        }
+    }
+
+    private static func load(_ name: String) -> UIImage? {
+        for ext in ["jpg", "png"] {
+            if let path = Bundle.main.path(forResource: name, ofType: ext, inDirectory: "Images"), let image = UIImage(contentsOfFile: path) { return image }
+            if let path = Bundle.main.path(forResource: name, ofType: ext), let image = UIImage(contentsOfFile: path) { return image }
+        }
+        return nil
     }
 }
 

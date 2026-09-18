@@ -3,7 +3,8 @@ import XCTest
 
 final class MachadoBibliotecaTests: XCTestCase {
     func testCatalogContainsThirtyIntegralWorks() throws {
-        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "catalog", withExtension: "json"))
+        let bundles = [Bundle(for: Self.self)] + Bundle.allBundles + Bundle.allFrameworks
+        let url = try XCTUnwrap(bundles.compactMap { $0.url(forResource: "catalog", withExtension: "json") }.first)
         let data = try Data(contentsOf: url)
         let entries = try JSONDecoder().decode([CatalogFixture].self, from: data)
         XCTAssertEqual(entries.count, 30)

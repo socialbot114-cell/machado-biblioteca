@@ -65,7 +65,7 @@ jobs:
         working-directory: iosApp
         run: xcodegen generate --spec project.yml
       - name: Run iOS unit tests
-        run: xcodebuild test -project iosApp/MachadoBiblioteca.xcodeproj -scheme MachadoBiblioteca -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' CODE_SIGNING_ALLOWED=NO
+        run: xcodebuild test -project iosApp/MachadoBiblioteca.xcodeproj -scheme MachadoBiblioteca -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.5' CODE_SIGNING_ALLOWED=NO
       - name: Archive signed app
         env:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}

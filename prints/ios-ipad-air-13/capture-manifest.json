@@ -1,0 +1,44 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "2390FFDB-6478-4BAD-8541-4DAD346BEF11",
+        "deviceName" : "iPad Air 13-inch (M4)",
+        "exportedFileName" : "736B9F64-E2C2-40B1-9ACC-725D7220E045.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "04-leitor_0_96281664-DDB1-49E2-8185-5E5AA34D53C2.png",
+        "timestamp" : 1790055950.089
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "2390FFDB-6478-4BAD-8541-4DAD346BEF11",
+        "deviceName" : "iPad Air 13-inch (M4)",
+        "exportedFileName" : "120E11FA-33A5-434E-8AD4-27105A7BDB13.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "03-detalhe_0_7CC45772-219A-4F77-80C9-6355743888A4.png",
+        "timestamp" : 1790055946.692
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "2390FFDB-6478-4BAD-8541-4DAD346BEF11",
+        "deviceName" : "iPad Air 13-inch (M4)",
+        "exportedFileName" : "4CA8BE2A-D423-4167-B90F-2C8790779648.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "02-biblioteca_0_E4FB80F3-1BB6-4E8C-9298-E2551AF375A2.png",
+        "timestamp" : 1790055940.766
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "2390FFDB-6478-4BAD-8541-4DAD346BEF11",
+        "deviceName" : "iPad Air 13-inch (M4)",
+        "exportedFileName" : "A0EC4168-DB0D-4AAB-9773-9717BA71B033.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "01-inicio_0_28386DDC-BF10-4B85-B3F6-66B1FBBF6928.png",
+        "timestamp" : 1790055934.133
+      }
+    ],
+    "testIdentifier" : "MachadoScreenshotTests/testStoreScreenshots()",
+    "testIdentifierURL" : "test://com.apple.xcode/MachadoBiblioteca/MachadoBibliotecaScreenshotTests/MachadoScreenshotTests/testStoreScreenshots"
+  }
+]

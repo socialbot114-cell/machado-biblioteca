@@ -1,0 +1,60 @@
+name: Machado iOS Screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    name: ${{ matrix.device_name }} screenshots
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - device_name: iPhone 17
+            device_key: iphone-17
+            destination: platform=iOS Simulator,name=iPhone 17,OS=26.5
+          - device_name: iPad Air 13-inch
+            device_key: ipad-air-13
+            destination: platform=iOS Simulator,name=iPad Air 13-inch (M4),OS=26.5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Validate iOS resources
+        run: python3 tools/validate_ios_assets.py
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate --spec project.yml
+
+      - name: Run screenshot UI test
+        env:
+          SCREENSHOT_DIR: ${{ runner.temp }}/machado-screenshots/${{ matrix.device_key }}
+        run: |
+          mkdir -p "$SCREENSHOT_DIR"
+          xcodebuild test \
+            -project iosApp/MachadoBiblioteca.xcodeproj \
+            -scheme MachadoBiblioteca \
+            -destination 'platform=iOS Simulator,name=${{ matrix.device_name }},OS=26.5' \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:MachadoBibliotecaScreenshotTests/MachadoScreenshotTests/testStoreScreenshots
+
+      - name: Validate screenshots
+        env:
+          SCREENSHOT_DIR: ${{ runner.temp }}/machado-screenshots/${{ matrix.device_key }}
+        run: |
+          test "$(find "$SCREENSHOT_DIR" -name '*.png' | wc -l | tr -d ' ')" -eq 4
+          file "$SCREENSHOT_DIR"/*.png
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: machado-ios-screenshots-${{ matrix.device_key }}
+          path: ${{ runner.temp }}/machado-screenshots/${{ matrix.device_key }}/*.png
+          if-no-files-found: error

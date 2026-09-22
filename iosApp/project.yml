@@ -93,3 +93,23 @@ targets:
       - path: Resources/catalog.json
     dependencies:
       - target: MachadoBiblioteca
+  MachadoBibliotecaScreenshotTests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: ScreenshotTests
+    dependencies:
+      - target: MachadoBiblioteca
+
+schemes:
+  MachadoBiblioteca:
+    build:
+      targets:
+        MachadoBiblioteca: all
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - name: MachadoBibliotecaTests
+        - name: MachadoBibliotecaScreenshotTests

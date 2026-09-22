@@ -13,13 +13,13 @@ final class MachadoScreenshotTests: XCTestCase {
     func testStoreScreenshots() throws {
         capture("01-inicio")
 
-        let libraryTab = app.buttons["Biblioteca"]
+        let libraryTab = app.buttons["Biblioteca"].firstMatch
         XCTAssertTrue(libraryTab.waitForExistence(timeout: 15))
         libraryTab.tap()
         XCTAssertTrue(app.staticTexts["Biblioteca"].firstMatch.waitForExistence(timeout: 15))
         capture("02-biblioteca")
 
-        app.buttons["Início"].tap()
+        app.buttons["Início"].firstMatch.tap()
         let domCasmurro = app.staticTexts["Dom Casmurro"].firstMatch
         XCTAssertTrue(domCasmurro.waitForExistence(timeout: 15))
         domCasmurro.tap()

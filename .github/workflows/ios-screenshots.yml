@@ -16,10 +16,8 @@ jobs:
         include:
           - device_name: iPhone 17
             device_key: iphone-17
-            destination: platform=iOS Simulator,name=iPhone 17,OS=26.5
           - device_name: iPad Air 13-inch (M4)
             device_key: ipad-air-13
-            destination: platform=iOS Simulator,name=iPad Air 13-inch (M4),OS=26.5
     steps:
       - uses: actions/checkout@v5
 
@@ -34,27 +32,29 @@ jobs:
         run: xcodegen generate --spec project.yml
 
       - name: Run screenshot UI test
-        env:
-          SCREENSHOT_DIR: ${{ runner.temp }}/machado-screenshots/${{ matrix.device_key }}
+        working-directory: iosApp
         run: |
-          mkdir -p "$SCREENSHOT_DIR"
+          set -euo pipefail
           xcodebuild test \
-            -project iosApp/MachadoBiblioteca.xcodeproj \
+            -project MachadoBiblioteca.xcodeproj \
             -scheme MachadoBiblioteca \
             -destination 'platform=iOS Simulator,name=${{ matrix.device_name }},OS=26.5' \
+            -resultBundlePath "$RUNNER_TEMP/machado-${{ matrix.device_key }}.xcresult" \
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:MachadoBibliotecaScreenshotTests/MachadoScreenshotTests/testStoreScreenshots
+          xcrun xcresulttool export attachments \
+            --path "$RUNNER_TEMP/machado-${{ matrix.device_key }}.xcresult" \
+            --output-path "$RUNNER_TEMP/machado-screenshots-${{ matrix.device_key }}"
 
       - name: Validate screenshots
-        env:
-          SCREENSHOT_DIR: ${{ runner.temp }}/machado-screenshots/${{ matrix.device_key }}
         run: |
-          test "$(find "$SCREENSHOT_DIR" -name '*.png' | wc -l | tr -d ' ')" -eq 4
-          file "$SCREENSHOT_DIR"/*.png
+          screenshot_dir="$RUNNER_TEMP/machado-screenshots-${{ matrix.device_key }}"
+          test "$(find "$screenshot_dir" -type f -name '*.png' | wc -l | tr -d ' ')" -eq 4
+          file "$screenshot_dir"/*.png
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
           name: machado-ios-screenshots-${{ matrix.device_key }}
-          path: ${{ runner.temp }}/machado-screenshots/${{ matrix.device_key }}/*.png
+          path: ${{ runner.temp }}/machado-screenshots-${{ matrix.device_key }}
           if-no-files-found: error

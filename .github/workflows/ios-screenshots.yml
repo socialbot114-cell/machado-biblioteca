@@ -17,7 +17,7 @@ jobs:
           - device_name: iPhone 17
             device_key: iphone-17
             destination: platform=iOS Simulator,name=iPhone 17,OS=26.5
-          - device_name: iPad Air 13-inch
+          - device_name: iPad Air 13-inch (M4)
             device_key: ipad-air-13
             destination: platform=iOS Simulator,name=iPad Air 13-inch (M4),OS=26.5
     steps:

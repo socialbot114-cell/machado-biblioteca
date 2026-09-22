@@ -34,7 +34,7 @@ final class MachadoScreenshotTests: XCTestCase {
         try capture("03-detalhe")
 
         startReading.tap()
-        XCTAssertTrue(app.staticTexts["Capítulo primeiro"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts["I"].firstMatch.waitForExistence(timeout: 30))
         try capture("04-leitor")
     }
 

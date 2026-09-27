@@ -29,6 +29,10 @@ final class MachadoScreenshotTests: XCTestCase {
 
         startReading.tap()
         XCTAssertTrue(app.staticTexts["I"].firstMatch.waitForExistence(timeout: 30))
+        app.swipeLeft()
+        XCTAssertTrue(app.staticTexts["Página 2 de 2"].waitForExistence(timeout: 10))
+        app.swipeRight()
+        XCTAssertTrue(app.staticTexts["Página 1 de 2"].waitForExistence(timeout: 10))
         capture("04-leitor")
 
         app.buttons["Fechar"].firstMatch.tap()
@@ -38,6 +42,7 @@ final class MachadoScreenshotTests: XCTestCase {
         } else {
             XCTAssertTrue(app.buttons["Remover dos favoritos"].firstMatch.waitForExistence(timeout: 5))
         }
+        app.navigationBars.buttons.firstMatch.tap()
 
         let myLibraryTab = app.buttons["Minha biblioteca"].firstMatch
         XCTAssertTrue(myLibraryTab.waitForExistence(timeout: 10))

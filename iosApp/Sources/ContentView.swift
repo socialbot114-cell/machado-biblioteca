@@ -259,6 +259,7 @@ private struct WorkDetailView: View {
         .navigationTitle(work.title).navigationBarTitleDisplayMode(.inline)
         .task { document = library.document(for: work) }
         .fullScreenCover(isPresented: $showReader) { ReaderView(work: work, library: library, initialChapter: chapterIndex) }
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -308,6 +309,8 @@ private struct ReaderView: View {
                                         HStack { Button("‹ Anterior") { moveChapter(-1) }.disabled(chapterIndex == 0); Spacer(); Button("Próximo ›") { moveChapter(1) }.disabled(chapterIndex >= (document?.chapters.count ?? 1) - 1) }.buttonStyle(.bordered)
                                     }
                                     .padding(.horizontal, 20).padding(.vertical, 24)
+                                    .frame(maxWidth: 760, alignment: .leading)
+                                    .frame(maxWidth: .infinity, alignment: .topLeading)
                                 }
                                 .tag(index)
                             }
@@ -352,7 +355,7 @@ private struct UniverseView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Image("hero_universo").resizable().scaledToFill().frame(height: 180).clipped().clipShape(RoundedRectangle(cornerRadius: 20))
+                    BundledImage(name: "hero_universo").scaledToFill().frame(height: 180).clipped().clipShape(RoundedRectangle(cornerRadius: 20))
                     Text("UNIVERSO MACHADO").font(.caption.bold()).tracking(2).foregroundStyle(MachadoStyle.gold)
                     Text("Vidas, vozes e destinos").font(.largeTitle.bold()).foregroundStyle(MachadoStyle.green)
                     Text("Entre nos livros por quem os habita e pelo tempo que formou seu autor.").foregroundStyle(.secondary)

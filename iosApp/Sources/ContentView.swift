@@ -310,7 +310,7 @@ private struct ReaderView: View {
                                     }
                                     .padding(.horizontal, 20).padding(.vertical, 24)
                                     .frame(maxWidth: 760, alignment: .leading)
-                                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                                    .frame(maxWidth: .infinity, alignment: .top)
                                 }
                                 .tag(index)
                             }

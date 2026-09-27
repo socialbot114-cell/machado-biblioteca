@@ -51,13 +51,16 @@ struct WorkSummary: Identifiable, Hashable, Codable {
     let sourceURL: String
     let heroImageName: String?
 
+    private static let coverPalettes = [
+        ["#173B32", "#315E50"],
+        ["#3A2921", "#704B37"],
+        ["#5B3C56", "#8A5D78"],
+        ["#8A642E", "#B39255"]
+    ]
+
     var coverPalette: [String] {
-        switch abs(id.hashValue) % 4 {
-        case 0: return ["#173B32", "#315E50"]
-        case 1: return ["#3A2921", "#704B37"]
-        case 2: return ["#5B3C56", "#8A5D78"]
-        default: return ["#8A642E", "#B39255"]
-        }
+        let index = id.unicodeScalars.reduce(0) { $0 + Int($1.value) } % Self.coverPalettes.count
+        return Self.coverPalettes[index]
     }
 }
 

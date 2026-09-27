@@ -49,7 +49,7 @@ jobs:
       - name: Validate screenshots
         run: |
           screenshot_dir="$RUNNER_TEMP/machado-screenshots-${{ matrix.device_key }}"
-          test "$(find "$screenshot_dir" -type f -name '*.png' | wc -l | tr -d ' ')" -eq 4
+          test "$(find "$screenshot_dir" -type f -name '*.png' | wc -l | tr -d ' ')" -eq 6
           file "$screenshot_dir"/*.png
 
       - name: Upload screenshots

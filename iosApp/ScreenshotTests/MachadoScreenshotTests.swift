@@ -30,6 +30,27 @@ final class MachadoScreenshotTests: XCTestCase {
         startReading.tap()
         XCTAssertTrue(app.staticTexts["I"].firstMatch.waitForExistence(timeout: 30))
         capture("04-leitor")
+
+        app.buttons["Fechar"].firstMatch.tap()
+        let addFavorite = app.buttons["Adicionar aos favoritos"].firstMatch
+        if addFavorite.waitForExistence(timeout: 10) {
+            addFavorite.tap()
+        } else {
+            XCTAssertTrue(app.buttons["Remover dos favoritos"].firstMatch.waitForExistence(timeout: 5))
+        }
+
+        let myLibraryTab = app.buttons["Minha biblioteca"].firstMatch
+        XCTAssertTrue(myLibraryTab.waitForExistence(timeout: 10))
+        myLibraryTab.tap()
+        XCTAssertTrue(app.staticTexts["Favoritos"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Dom Casmurro"].firstMatch.waitForExistence(timeout: 10))
+        capture("05-minha-biblioteca")
+
+        let universeTab = app.buttons["Universo"].firstMatch
+        XCTAssertTrue(universeTab.waitForExistence(timeout: 10))
+        universeTab.tap()
+        XCTAssertTrue(app.staticTexts["UNIVERSO MACHADO"].waitForExistence(timeout: 10))
+        capture("06-universo")
     }
 
     private func capture(_ name: String) {

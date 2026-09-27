@@ -12,12 +12,14 @@ struct ContentView: View {
             MyLibraryView(library: library).tabItem { Label("Minha biblioteca", systemImage: "bookmark.fill") }
         }
         .tint(MachadoStyle.green)
+        .toolbarBackground(MachadoStyle.canvas, for: .tabBar)
     }
 }
 
 private enum MachadoStyle {
     static let green = Color(red: 0.09, green: 0.23, blue: 0.20)
     static let gold = Color(red: 0.70, green: 0.57, blue: 0.30)
+    static let canvas = Color(red: 0.975, green: 0.958, blue: 0.928)
     static let paper = Color(red: 0.94, green: 0.90, blue: 0.84)
     static let ink = Color(red: 0.23, green: 0.14, blue: 0.10)
 }
@@ -40,15 +42,6 @@ private struct HomeView: View {
                     .accessibilityElement(children: .combine)
 
                     HeroCarousel(library: library)
-
-                    HStack(spacing: 12) {
-                        NavigationLink(destination: UniverseView(library: library)) {
-                            HomeActionLabel(title: "Universo", subtitle: "Personagens e histórias", icon: "person.3.fill")
-                        }.buttonStyle(.plain)
-                        NavigationLink(destination: MyLibraryView(library: library)) {
-                            HomeActionLabel(title: "Minha biblioteca", subtitle: "Seu percurso", icon: "bookmark.fill")
-                        }.buttonStyle(.plain)
-                    }
 
                     Button { showingSearch = true } label: {
                         Label("Buscar obra, personagem ou trecho…", systemImage: "magnifyingglass")
@@ -81,10 +74,12 @@ private struct HomeView: View {
                 }
                 .padding()
             }
+            .background(MachadoStyle.canvas)
             .navigationTitle("Início")
             .sheet(isPresented: $showingSearch) { SearchView(library: library) }
             .overlay { if let error = library.loadError { ResourceErrorView(message: error) } }
         }
+        .toolbarBackground(MachadoStyle.canvas, for: .navigationBar)
     }
 }
 
@@ -160,9 +155,11 @@ private struct LibraryView: View {
                 }
                 .padding()
             }
+            .background(MachadoStyle.canvas)
             .searchable(text: $query, prompt: "Filtrar obras")
             .navigationTitle("Biblioteca")
         }
+        .toolbarBackground(MachadoStyle.canvas, for: .navigationBar)
     }
 }
 
@@ -192,11 +189,14 @@ private struct SearchView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(MachadoStyle.canvas)
             .searchable(text: $query, prompt: "Buscar palavra ou trecho")
             .onChange(of: query) { _, value in library.searchChanged(value) }
             .navigationTitle("Busca integral")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Fechar") { dismiss() } } }
         }
+        .toolbarBackground(MachadoStyle.canvas, for: .navigationBar)
     }
 }
 
@@ -206,6 +206,7 @@ private struct WorkDetailView: View {
     @State private var document: WorkDocument?
     @State private var showReader = false
     @State private var chapterIndex = 0
+    @State private var showingAllChapters = false
 
     var body: some View {
         ScrollView {
@@ -229,19 +230,32 @@ private struct WorkDetailView: View {
                 }.buttonStyle(.bordered)
 
                 DetailSection(title: "Sobre a obra", text: work.description)
-                DetailSection(title: "Contexto", text: work.context)
-                if !work.characters.isEmpty { DetailSection(title: "Personagens", text: work.characters.joined(separator: " • ")) }
+                if !work.context.isEmpty {
+                    ExpandableDetailSection(title: "Contexto", text: work.context)
+                }
+                if !work.characters.isEmpty {
+                    ExpandableDetailSection(title: "Personagens", text: work.characters.joined(separator: " • "))
+                }
                 if let document {
                     Text("CAPÍTULOS • \(document.chapters.count)").sectionLabel()
-                    ForEach(Array(document.chapters.enumerated()), id: \.offset) { index, chapter in
+                    ForEach(Array(document.chapters.enumerated().prefix(showingAllChapters ? document.chapters.count : 5)), id: \.offset) { index, chapter in
                         Button { chapterIndex = index; showReader = true } label: {
                             HStack { Text("\(index + 1).").foregroundStyle(MachadoStyle.gold); Text(chapter.title).foregroundStyle(.primary); Spacer(); Image(systemName: "chevron.right").foregroundStyle(.secondary) }
                         }.buttonStyle(.plain).padding(.vertical, 4)
                     }
+                    if document.chapters.count > 5 {
+                        Button(showingAllChapters ? "Mostrar menos capítulos" : "Ver todos os capítulos") {
+                            withAnimation(.easeInOut(duration: 0.2)) { showingAllChapters.toggle() }
+                        }
+                        .font(.subheadline.bold())
+                        .foregroundStyle(MachadoStyle.green)
+                        .padding(.vertical, 4)
+                    }
                 }
-                DetailSection(title: "Fonte", text: "Domínio público • Transcrição Wikisource PT (CC BY-SA).")
+                ExpandableDetailSection(title: "Fonte", text: "Domínio público • Transcrição Wikisource PT (CC BY-SA).")
             }.padding()
         }
+        .background(MachadoStyle.canvas)
         .navigationTitle(work.title).navigationBarTitleDisplayMode(.inline)
         .task { document = library.document(for: work) }
         .fullScreenCover(isPresented: $showReader) { ReaderView(work: work, library: library, initialChapter: chapterIndex) }
@@ -353,8 +367,11 @@ private struct UniverseView: View {
                         }
                     }
                 }.padding()
-            }.navigationTitle("Universo")
+            }
+            .background(MachadoStyle.canvas)
+            .navigationTitle("Universo")
         }
+        .toolbarBackground(MachadoStyle.canvas, for: .navigationBar)
     }
 }
 
@@ -374,7 +391,9 @@ private struct CharacterDetailView: View {
                 Button { library.toggleCharacterFavorite(character.id) } label: { Label(library.favoriteCharacters.contains(character.id) ? "Remover favorito" : "Adicionar favorito", systemImage: library.favoriteCharacters.contains(character.id) ? "star.fill" : "star").frame(maxWidth: .infinity) }.buttonStyle(.bordered)
                 if let work = library.works.first(where: { $0.id == character.workID }) { NavigationLink("Ler obra relacionada", destination: WorkDetailView(work: work, library: library)).buttonStyle(.borderedProminent) }
             }.padding()
-        }.navigationTitle(character.name).navigationBarTitleDisplayMode(.inline)
+        }
+        .background(MachadoStyle.canvas)
+        .navigationTitle(character.name).navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -401,8 +420,13 @@ private struct MyLibraryView: View {
                 }
                 Section("Tema do leitor") { Picker("Tema", selection: Binding(get: { library.theme }, set: { library.setTheme($0) })) { ForEach(ReaderTheme.allCases, id: \.self) { Text($0.rawValue).tag($0) } }.pickerStyle(.segmented) }
                 Section("Privacidade") { Text("Todo o progresso, favoritos e citações ficam somente neste aparelho. O app funciona sem conta, anúncios ou rastreamento.").font(.footnote).foregroundStyle(.secondary) }
-            }.navigationTitle("Minha biblioteca")
+            }
+            .scrollContentBackground(.hidden)
+            .background(MachadoStyle.canvas)
+            .listRowBackground(MachadoStyle.canvas)
+            .navigationTitle("Minha biblioteca")
         }
+        .toolbarBackground(MachadoStyle.canvas, for: .navigationBar)
     }
 }
 
@@ -454,7 +478,7 @@ private struct WorkRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            CoverView(work: work).frame(width: 54, height: 76)
+            CoverView(work: work, compact: true).frame(width: 54, height: 76)
             VStack(alignment: .leading, spacing: 5) {
                 Text(work.title).font(.headline)
                 Text("\(work.year) • \(work.category)").font(.caption).foregroundStyle(.secondary)
@@ -468,18 +492,50 @@ private struct WorkRow: View {
 
 private struct CoverView: View {
     let work: WorkSummary
+    var compact = false
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             LinearGradient(colors: work.coverPalette.map(Color.init(hex:)), startPoint: .top, endPoint: .bottom)
-            VStack(alignment: .leading) {
-                Text("MACHADO DE ASSIS").font(.system(size: 7, weight: .bold)).tracking(1)
-                Spacer()
-                Text(work.title).font(.system(size: 16, weight: .bold, design: .serif)).lineLimit(4)
-                Text(work.category.uppercased()).font(.system(size: 8, weight: .bold))
-            }.foregroundStyle(.white).padding(10)
+            if compact {
+                VStack(spacing: 7) {
+                    Image(systemName: "book.closed.fill")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(MachadoStyle.gold)
+                    Text(monogram)
+                        .font(.system(size: 23, weight: .bold, design: .serif))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Capsule()
+                        .fill(MachadoStyle.gold.opacity(0.9))
+                        .frame(width: 18, height: 2)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .foregroundStyle(.white)
+            } else {
+                VStack(alignment: .leading) {
+                    Text("MACHADO DE ASSIS").font(.system(size: 7, weight: .bold)).tracking(1)
+                    Spacer()
+                    Text(work.title).font(.system(size: 16, weight: .bold, design: .serif)).lineLimit(4)
+                    Text(work.category.uppercased()).font(.system(size: 8, weight: .bold))
+                }
+                .foregroundStyle(.white)
+                .padding(10)
+            }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(.white.opacity(0.18), lineWidth: 1))
+        .accessibilityHidden(true)
+    }
+
+    private var monogram: String {
+        let ignoredWords: Set<String> = ["a", "as", "o", "os", "de", "da", "do", "das", "dos", "e"]
+        let initials = work.title
+            .split(whereSeparator: { !$0.isLetter })
+            .filter { !ignoredWords.contains(String($0).lowercased()) }
+            .prefix(2)
+            .compactMap { $0.first }
+        return initials.isEmpty ? String(work.title.prefix(1)).uppercased() : String(initials).uppercased()
     }
 }
 
@@ -534,33 +590,6 @@ private struct BundledImage: View {
     }
 }
 
-private struct HomeAction: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) { HomeActionLabel(title: title, subtitle: subtitle, icon: icon) }.buttonStyle(.plain)
-    }
-}
-
-private struct HomeActionLabel: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-
-    var body: some View {
-        HStack {
-            Image(systemName: icon).foregroundStyle(MachadoStyle.gold)
-            VStack(alignment: .leading) { Text(title).font(.headline).foregroundStyle(MachadoStyle.green); Text(subtitle).font(.caption).foregroundStyle(.secondary) }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background(MachadoStyle.paper, in: RoundedRectangle(cornerRadius: 16))
-    }
-}
-
 private struct SectionHeader: View {
     let title: String
     let action: String
@@ -594,6 +623,27 @@ private struct DetailSection: View {
             Text(title.uppercased()).font(.caption.bold()).tracking(1).foregroundStyle(MachadoStyle.gold)
             Text(text).font(.system(.body, design: .serif)).lineSpacing(4)
         }
+    }
+}
+
+private struct ExpandableDetailSection: View {
+    let title: String
+    let text: String
+    @State private var isExpanded = false
+
+    var body: some View {
+        DisclosureGroup(isExpanded: $isExpanded) {
+            Text(text)
+                .font(.system(.body, design: .serif))
+                .lineSpacing(4)
+                .padding(.top, 4)
+        } label: {
+            Text(title.uppercased())
+                .font(.caption.bold())
+                .tracking(1)
+                .foregroundStyle(MachadoStyle.gold)
+        }
+        .tint(MachadoStyle.green)
     }
 }
 

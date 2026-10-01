@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -28,12 +29,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.machadodeassis.biblioteca.data.LibraryRepository
 import br.com.machadodeassis.biblioteca.db.SearchHit
+import br.com.machadodeassis.biblioteca.db.ChapterProgressEntity
 import br.com.machadodeassis.biblioteca.db.WorkEntity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(works: List<WorkEntity>, open: (WorkEntity) -> Unit, query: String, setQuery: (String) -> Unit, onSearch: () -> Unit, onUniverse: () -> Unit, onMyLibrary: () -> Unit) {
+fun HomeScreen(works: List<WorkEntity>, progress: List<ChapterProgressEntity>, open: (WorkEntity) -> Unit, query: String, setQuery: (String) -> Unit, onSearch: () -> Unit, onUniverse: () -> Unit, onMyLibrary: () -> Unit, onLibrary: () -> Unit) {
+    val progressByWork = progress.groupBy { it.workId }.mapValues { (_, values) -> values.maxOfOrNull { it.progress } ?: 0 }
+    val active = works.filter { (progressByWork[it.id] ?: 0) in 1..99 }.take(6)
+    val categories = works.map { it.category }.filter { it.isNotBlank() }.distinct().take(4)
     Column(Modifier.fillMaxSize().padding(horizontal = 22.dp).verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(22.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -53,23 +58,38 @@ fun HomeScreen(works: List<WorkEntity>, open: (WorkEntity) -> Unit, query: Strin
             IconButton(onSearch) { Icon(Icons.AutoMirrored.Filled.ArrowForward, "Ir para busca") }
         }, shape = RoundedCornerShape(16.dp))
         Spacer(Modifier.height(20.dp))
-        Text("OBRAS INTEGRAIS", color = gold, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-        Text("${works.size} obras • leitura offline", fontSize = 13.sp)
-        Spacer(Modifier.height(6.dp))
-        works.forEach { w ->
-            Surface(Modifier.fillMaxWidth().padding(vertical = 5.dp).clickable { open(w) }, RoundedCornerShape(16.dp), color = paper) {
-                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Cover(w, Modifier.size(54.dp, 78.dp))
-                    Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(w.title, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                        Text("${w.year} • ${w.category} • ${w.chapterCount} capítulos")
-                        Text("${w.wordCount / 1000}k palavras", fontSize = 12.sp, color = Color(0xFF5a544a))
-                    }
-                }
+        if (active.isNotEmpty()) HomeBookSection("Continue lendo", active, open, showAll = onMyLibrary)
+        SectionTitle("EXPLORE POR CATEGORIA")
+        Text("${works.size} obras integrais para ler offline", fontSize = 13.sp, color = Color(0xFF5a544a))
+        categories.forEach { category ->
+            HomeBookSection(category, works.filter { it.category == category }.take(6), open, showAll = onLibrary)
+        }
+        Surface(Modifier.fillMaxWidth().padding(top = 16.dp).clickable { onLibrary() }, RoundedCornerShape(18.dp), color = green) {
+            Row(Modifier.padding(horizontal = 18.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) { Text("Ver toda a biblioteca", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp); Text("Filtre por categoria e encontre sua próxima leitura", color = Color.White.copy(alpha = .8f), fontSize = 12.sp) }
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, "Abrir biblioteca", tint = Color.White)
             }
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun HomeBookSection(title: String, works: List<WorkEntity>, open: (WorkEntity) -> Unit, showAll: () -> Unit) {
+    if (works.isEmpty()) return
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 8.dp)) {
+        Text(title, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.weight(1f))
+        TextButton(showAll) { Text("Ver todos", color = green, fontSize = 12.sp) }
+    }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(bottom = 4.dp)) {
+        items(works, key = { it.id }) { work ->
+            Column(Modifier.width(126.dp).clickable { open(work) }) {
+                Cover(work, Modifier.fillMaxWidth().height(176.dp))
+                Spacer(Modifier.height(7.dp))
+                Text(work.title, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 2)
+                Text("${work.year} • ${work.category}", fontSize = 11.sp, color = Color(0xFF5a544a), maxLines = 1)
+            }
+        }
     }
 }
 
@@ -106,11 +126,13 @@ private fun HomeAction(title: String, subtitle: String, action: () -> Unit, modi
 @Composable
 fun LibraryScreen(works: List<WorkEntity>, query: String, setQuery: (String) -> Unit, open: (WorkEntity) -> Unit) {
     var category by remember { mutableStateOf("Todos") }
+    var visibleCount by remember { mutableIntStateOf(8) }
     val cats = listOf("Todos") + works.map { it.category }.distinct()
     val filtered = works.filter {
         (category == "Todos" || it.category == category) &&
             (query.isBlank() || it.title.contains(query, true) || it.description.contains(query, true) || it.characters.lowercase().contains(query.lowercase()))
     }
+    LaunchedEffect(category, query) { visibleCount = 8 }
     Column(Modifier.fillMaxSize().padding(horizontal = 22.dp)) {
         Spacer(Modifier.height(20.dp))
         Text("Biblioteca", fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 28.sp)
@@ -120,12 +142,19 @@ fun LibraryScreen(works: List<WorkEntity>, query: String, setQuery: (String) -> 
             items(cats) { c -> FilterChip(selected = category == c, onClick = { category = c }, label = { Text(c) }) }
         }
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(bottom = 24.dp, top = 6.dp)) {
-            items(filtered) { w ->
+            items(filtered.take(visibleCount), key = { it.id }) { w ->
                 Surface(Modifier.fillMaxWidth().clickable { open(w) }, RoundedCornerShape(16.dp), color = paper) {
                     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         Cover(w, Modifier.size(50.dp, 72.dp))
                         Spacer(Modifier.width(12.dp))
                         Column { Text(w.title, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 18.sp); Text("${w.year} • ${w.category}"); Text(w.description, maxLines = 2, fontSize = 13.sp) }
+                    }
+                }
+            }
+            if (visibleCount < filtered.size) {
+                item {
+                    OutlinedButton({ visibleCount += 8 }, Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                        Text("Mostrar mais obras (${filtered.size - visibleCount} restantes)")
                     }
                 }
             }
@@ -250,8 +279,19 @@ val ivory = Color(0xFFF7F2E8)
 
 @Composable
 fun Cover(work: WorkEntity, modifier: Modifier) {
-    val base = if (work.id.hashCode() % 2 == 0) green else Color(0xFF3A2921)
-    Box(modifier.background(base, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
-        Text(work.title.take(2).uppercase(), color = Color(0xFFF7F2E8), fontFamily = FontFamily.Serif, fontSize = 20.sp)
+    val palette = when (kotlin.math.abs(work.id.hashCode()) % 4) {
+        0 -> listOf(Color(0xFF173B32), Color(0xFF315E50))
+        1 -> listOf(Color(0xFF3A2921), Color(0xFF704B37))
+        2 -> listOf(Color(0xFF5B3C56), Color(0xFF8A5D78))
+        else -> listOf(Color(0xFF8A642E), Color(0xFFB39255))
+    }
+    Box(modifier.background(Brush.verticalGradient(palette), RoundedCornerShape(8.dp)).padding(10.dp), contentAlignment = Alignment.BottomStart) {
+        Column {
+            Text("MACHADO DE ASSIS", color = Color(0xFFDCC79A), fontSize = 7.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+            Spacer(Modifier.height(4.dp))
+            Text(work.title, color = Color(0xFFF7F2E8), fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 16.sp, lineHeight = 18.sp, maxLines = 4)
+            Spacer(Modifier.height(4.dp))
+            Text(work.category.uppercase(), color = Color(0xFFF7F2E8).copy(alpha = .75f), fontSize = 8.sp, maxLines = 1)
+        }
     }
 }

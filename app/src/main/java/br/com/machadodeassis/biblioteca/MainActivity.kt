@@ -155,7 +155,7 @@ fun MachadoApp() {
                 }) { pad ->
                     Box(Modifier.padding(pad)) {
                         when (screen) {
-                            "home" -> HomeScreen(works, ::openWork, query, { query = it }, onSearch = { screen = "search" }, onUniverse = { screen = "universe" }, onMyLibrary = { screen = "my-library" })
+                            "home" -> HomeScreen(works, allProgress, ::openWork, query, { query = it }, onSearch = { screen = "search" }, onUniverse = { screen = "universe" }, onMyLibrary = { screen = "my-library" }, onLibrary = { screen = "library" })
                             "library" -> LibraryScreen(works, query, { query = it }, ::openWork)
                             "search" -> SearchScreen(repo, ::openWork)
                             "universe" -> UniverseScreen { selectedCharacter = it; screen = "character" }

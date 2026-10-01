@@ -1,6 +1,6 @@
 # Machado de Assis | Biblioteca
 
-Aplicativo Android nativo offline-first em Kotlin + Jetpack Compose. `applicationId`: `br.com.machadodeassis.biblioteca`. Target SDK: API 36. Versão 1.3.1 (versionCode 8).
+Aplicativo Android nativo offline-first em Kotlin + Jetpack Compose. `applicationId`: `br.com.machadodeassis.biblioteca`. Target SDK: API 36. Versão 1.4.0 (versionCode 9).
 
 ## O que há nesta versão
 

@@ -14,6 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - device_name: iPhone 17 Pro Max
+            device_key: iphone-17-pro-max
           - device_name: iPhone 17
             device_key: iphone-17
           - device_name: iPad Air 13-inch (M4)

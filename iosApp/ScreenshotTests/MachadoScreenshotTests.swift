@@ -29,10 +29,8 @@ final class MachadoScreenshotTests: XCTestCase {
 
         startReading.tap()
         XCTAssertTrue(app.staticTexts["I"].firstMatch.waitForExistence(timeout: 30))
-        app.swipeLeft()
-        XCTAssertTrue(app.staticTexts["Página 2 de 2"].waitForExistence(timeout: 10))
-        app.swipeRight()
-        XCTAssertTrue(app.staticTexts["Página 1 de 2"].waitForExistence(timeout: 10))
+        turnPage(from: 0.9, to: 0.1, expecting: "Página 2 de 2")
+        turnPage(from: 0.1, to: 0.9, expecting: "Página 1 de 2")
         capture("04-leitor")
 
         app.buttons["Fechar"].firstMatch.tap()
@@ -56,6 +54,17 @@ final class MachadoScreenshotTests: XCTestCase {
         universeTab.tap()
         XCTAssertTrue(app.staticTexts["UNIVERSO MACHADO"].waitForExistence(timeout: 10))
         capture("06-universo")
+    }
+
+    private func turnPage(from startX: CGFloat, to endX: CGFloat, expecting label: String) {
+        let pageLabel = app.staticTexts[label]
+        for _ in 0..<3 {
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: startX, dy: 0.5))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: endX, dy: 0.5))
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .fast, thenHoldForDuration: 0)
+            if pageLabel.waitForExistence(timeout: 5) { return }
+        }
+        XCTFail("Reader did not reach \(label)")
     }
 
     private func capture(_ name: String) {

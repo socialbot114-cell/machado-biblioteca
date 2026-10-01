@@ -215,9 +215,9 @@ private struct WorkDetailView: View {
                     CoverView(work: work).frame(width: 112, height: 162)
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Machado de Assis").font(.headline).foregroundStyle(MachadoStyle.green)
-                        Text("\(work.year)").font(.title3)
+                        Text(String(work.year)).font(.title3)
                         Text("\(work.category.uppercased()) • \(work.chapters) capítulos").font(.subheadline).foregroundStyle(.secondary)
-                        Text("\(work.words.formatted()) palavras").font(.subheadline).foregroundStyle(.secondary)
+                        Text("\(work.words.formatted(.number.locale(Locale(identifier: "pt_BR")))) palavras").font(.subheadline).foregroundStyle(.secondary)
                     }
                 }
                 Button { showReader = true } label: {
@@ -366,7 +366,7 @@ private struct UniverseView: View {
                         }
                     } else {
                         ForEach(library.timeline) { event in
-                            HStack(alignment: .top, spacing: 14) { Text("\(event.year)").font(.headline).foregroundStyle(MachadoStyle.gold).frame(width: 48, alignment: .leading); VStack(alignment: .leading) { Text(event.title).font(.headline); Text(event.description).foregroundStyle(.secondary); Text(event.kind).font(.caption.bold()).foregroundStyle(MachadoStyle.gold) } }.padding(.vertical, 5)
+                            HStack(alignment: .top, spacing: 14) { Text(String(event.year)).font(.headline).foregroundStyle(MachadoStyle.gold).frame(width: 48, alignment: .leading); VStack(alignment: .leading) { Text(event.title).font(.headline); Text(event.description).foregroundStyle(.secondary); Text(event.kind).font(.caption.bold()).foregroundStyle(MachadoStyle.gold) } }.padding(.vertical, 5)
                         }
                     }
                 }.padding()
@@ -448,7 +448,7 @@ private struct WorkSection: View {
                             VStack(alignment: .leading) {
                                 CoverView(work: work).frame(width: 126, height: 176)
                                 Text(work.title).font(.headline).lineLimit(2)
-                                Text("\(work.year) • \(work.category)").font(.caption).foregroundStyle(.secondary)
+                                Text("\(String(work.year)) • \(work.category)").font(.caption).foregroundStyle(.secondary)
                             }
                         }.buttonStyle(.plain)
                     }
@@ -484,7 +484,7 @@ private struct WorkRow: View {
             CoverView(work: work, compact: true).frame(width: 54, height: 76)
             VStack(alignment: .leading, spacing: 5) {
                 Text(work.title).font(.headline)
-                Text("\(work.year) • \(work.category)").font(.caption).foregroundStyle(.secondary)
+                Text("\(String(work.year)) • \(work.category)").font(.caption).foregroundStyle(.secondary)
                 ProgressView(value: progress / 100).tint(MachadoStyle.gold)
             }
         }

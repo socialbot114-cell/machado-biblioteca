@@ -6,7 +6,7 @@ final class MachadoScreenshotTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments.append("--screenshot-capture")
+        app.launchArguments += ["--screenshot-capture", "-AppleLanguages", "(pt-BR)", "-AppleLocale", "pt_BR"]
         app.launch()
     }
 

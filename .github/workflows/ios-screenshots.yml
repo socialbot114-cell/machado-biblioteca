@@ -33,6 +33,29 @@ jobs:
         working-directory: iosApp
         run: xcodegen generate --spec project.yml
 
+      - name: Prepare simulator (pt-BR, clean status bar)
+        run: |
+          set -euo pipefail
+          udid="$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          name = sys.argv[1]
+          for runtime, devices in json.load(sys.stdin)["devices"].items():
+              if "iOS-26-5" in runtime:
+                  for device in devices:
+                      if device["name"] == name:
+                          print(device["udid"]); raise SystemExit
+          raise SystemExit("simulator not found: " + name)
+          ' "${{ matrix.device_name }}")"
+          echo "SIM_UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl spawn "$udid" defaults write -g AppleLanguages -array pt-BR
+          xcrun simctl spawn "$udid" defaults write -g AppleLocale -string pt_BR
+          xcrun simctl shutdown "$udid"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl status_bar "$udid" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+
       - name: Run screenshot UI test
         working-directory: iosApp
         run: |
@@ -40,7 +63,7 @@ jobs:
           xcodebuild test \
             -project MachadoBiblioteca.xcodeproj \
             -scheme MachadoBiblioteca \
-            -destination 'platform=iOS Simulator,name=${{ matrix.device_name }},OS=26.5' \
+            -destination "id=$SIM_UDID" \
             -resultBundlePath "$RUNNER_TEMP/machado-${{ matrix.device_key }}.xcresult" \
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:MachadoBibliotecaScreenshotTests/MachadoScreenshotTests/testStoreScreenshots

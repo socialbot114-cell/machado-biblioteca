@@ -18,7 +18,7 @@ Publicar a versao iOS do aplicativo Biblioteca Machado de Assis no TestFlight e,
 - App ID correto: `6810760794`
 - Bundle ID correto: `br.com.machadodeassis.biblioteca`
 - App Store version ID: `208f4bd0-92bf-4c36-a87a-1b377e4c2446`
-- Versao em preparacao: `1.3`
+- Versao em preparacao: `1.5.0`
 - Estado: `PREPARE_FOR_SUBMISSION`
 - Localizacao: `pt-BR`
 - Localizacao ID: `50053ba3-a928-469d-932b-77cda8f7f1e4`
@@ -33,7 +33,7 @@ Existe uma segunda app incorreta, criada durante os testes:
 
 - Workflow final aprovado: `34540409036`
 - URL: https://github.com/socialbot114-cell/machado-biblioteca/actions/runs/34540409036
-- Proximo build: `1.3 (23)` na app `6810760794`.
+- Proximo build: `1.5.0 (24)` na app `6810760794`.
 - Versao e build ficam em `iosApp/project.yml` (`MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`) e em `env` de `.github/workflows/ios-release.yml` (`APP_VERSION`, `APP_BUILD`). Mantenha os dois iguais e aumente o build a cada envio.
 - Build ID: `12324d89-89e4-4025-9596-4c6de3b0b8da`
 - O build foi associado a `App Store version 1.0`.

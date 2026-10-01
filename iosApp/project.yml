@@ -9,8 +9,6 @@ settings:
   base:
     PRODUCT_BUNDLE_IDENTIFIER: br.com.machadodeassis.biblioteca
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "2"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
     GENERATE_INFOPLIST_FILE: NO
     INFOPLIST_FILE: Info.plist
@@ -49,7 +47,7 @@ targets:
              --target-device ipad \
              --output-partial-info-plist "$TARGET_TEMP_DIR/AppIconInfo.plist"
            cp "$SRCROOT/Resources/AppIcon-120.png" "$app_bundle/AppIcon-120.png"
-           /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion 22' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $CURRENT_PROJECT_VERSION" "$app_bundle/Info.plist"
            /usr/libexec/PlistBuddy -c 'Delete :UISupportedInterfaceOrientations' "$app_bundle/Info.plist" || true
            /usr/libexec/PlistBuddy -c 'Add :UISupportedInterfaceOrientations array' "$app_bundle/Info.plist"
            /usr/libexec/PlistBuddy -c 'Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait' "$app_bundle/Info.plist"
@@ -62,7 +60,7 @@ targets:
            /usr/libexec/PlistBuddy -c 'Add :UILaunchScreen dict' "$app_bundle/Info.plist"
            /usr/libexec/PlistBuddy -c 'Set :CFBundleIconName AppIcon' "$app_bundle/Info.plist" || \
              /usr/libexec/PlistBuddy -c 'Add :CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
-           /usr/libexec/PlistBuddy -c 'Set :CFBundleShortVersionString 1.1' "$app_bundle/Info.plist"
+           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $MARKETING_VERSION" "$app_bundle/Info.plist"
           /usr/libexec/PlistBuddy -c 'Delete :CFBundleIconFiles' "$app_bundle/Info.plist" || true
           /usr/libexec/PlistBuddy -c 'Add :CFBundleIconFiles array' "$app_bundle/Info.plist"
           /usr/libexec/PlistBuddy -c 'Add :CFBundleIconFiles:0 string AppIcon-120' "$app_bundle/Info.plist"
@@ -74,8 +72,8 @@ targets:
           /usr/libexec/PlistBuddy -c 'Add :CFBundleIcons:CFBundlePrimaryIcon:CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
     settings:
       base:
-        CURRENT_PROJECT_VERSION: "22"
-        MARKETING_VERSION: "1.1"
+        CURRENT_PROJECT_VERSION: "23"
+        MARKETING_VERSION: "1.3"
         INFOPLIST_KEY_CFBundleDisplayName: Machado de Assis
         INFOPLIST_KEY_UIBackgroundModes:
           - audio

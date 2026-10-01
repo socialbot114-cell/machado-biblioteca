@@ -1,6 +1,6 @@
 # Machado Biblioteca - Estado do Projeto
 
-Ultima atualizacao: 2026-09-10
+Ultima atualizacao: 2026-10-01
 
 ## Objetivo
 
@@ -18,7 +18,7 @@ Publicar a versao iOS do aplicativo Biblioteca Machado de Assis no TestFlight e,
 - App ID correto: `6810760794`
 - Bundle ID correto: `br.com.machadodeassis.biblioteca`
 - App Store version ID: `208f4bd0-92bf-4c36-a87a-1b377e4c2446`
-- Versao: `1.0`
+- Versao em preparacao: `1.3`
 - Estado: `PREPARE_FOR_SUBMISSION`
 - Localizacao: `pt-BR`
 - Localizacao ID: `50053ba3-a928-469d-932b-77cda8f7f1e4`
@@ -33,11 +33,12 @@ Existe uma segunda app incorreta, criada durante os testes:
 
 - Workflow final aprovado: `34540409036`
 - URL: https://github.com/socialbot114-cell/machado-biblioteca/actions/runs/34540409036
-- Próxima atualização: `1.1 (22)` na app `6810760794`.
+- Proximo build: `1.3 (23)` na app `6810760794`.
+- Versao e build ficam em `iosApp/project.yml` (`MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`) e em `env` de `.github/workflows/ios-release.yml` (`APP_VERSION`, `APP_BUILD`). Mantenha os dois iguais e aumente o build a cada envio.
 - Build ID: `12324d89-89e4-4025-9596-4c6de3b0b8da`
 - O build foi associado a `App Store version 1.0`.
 - O workflow gera archive assinado, exporta IPA e envia ao TestFlight.
-- A versao atual e iPhone-only (`TARGETED_DEVICE_FAMILY=1`).
+- O app e universal iPhone + iPad (`TARGETED_DEVICE_FAMILY=1,2`).
 
 ## Screenshots
 
@@ -54,29 +55,11 @@ Foram enviados via App Store Connect API para a app correta, no conjunto `APP_IP
 
 ## Assinatura Apple
 
-- Team ID: `SRN7AW424S`
-- API Key ID: `S96HVY2BYT`
-- Issuer ID: `aa5a3fcd-f139-4b1f-beb2-47fd125148d9`
-- Chave privada local: `/home/richard/Documentos/play store/AuthKey_S96HVY2BYT.p8`
-- Certificado iOS Distribution ID: `69BADS22K3`
-- Certificado valido ate 2027-09-10.
-- Provisioning profile correto ID: `QM8XY8W7QZ`
-- Provisioning UUID correto: `a2dc14b5-6c9b-43e2-aacd-5aafc341cc22`
-- O profile correto foi criado para o bundle ID original.
+Os dados de assinatura Apple ficam somente nos secrets do GitHub Actions e nos
+arquivos locais ignorados pelo Git. Identificadores, caminhos de chaves,
+certificados e UUIDs não devem ser documentados neste arquivo.
 
-Secrets configurados no GitHub:
-
-- `APPLE_API_KEY_P8`
-- `APPLE_API_KEY_ID`
-- `APPLE_API_ISSUER_ID`
-- `APPLE_DISTRIBUTION_CERT`
-- `APPLE_DISTRIBUTION_KEY`
-- `APPLE_PROVISIONING_PROFILE`
-
-Secrets obsoletos PKCS#12 foram removidos:
-
-- `APPLE_DISTRIBUTION_CERT_P12`
-- `APPLE_CERTIFICATE_PASSWORD`
+Consulte `docs/GITHUB_ACTIONS.md` para os nomes dos secrets necessários.
 
 ## Arquivos importantes
 
@@ -95,12 +78,13 @@ Secrets obsoletos PKCS#12 foram removidos:
 - Keychain temporario no runner macOS.
 - Importacao separada de certificado `.cer` e chave privada.
 - Assinatura manual com `Apple Distribution`.
-- Chave App Store Connect copiada para `~/private_keys/AuthKey_<KEY_ID>.p8` para o `altool`.
 - Compilacao explicita do `Assets.xcassets` com `actool`.
 - Script `Prepare App Store icon metadata` para garantir `CFBundleIconName`, `CFBundleIcons` e icon 120x120.
-- Launch screen e orientacoes foram resolvidos para a configuracao iPhone-only.
+- Launch screen e orientacoes configuradas para iPhone e iPad.
 
 ## Pendencias antes do envio para revisao
+
+> Itens herdados da versao 1.0; confirmar no App Store Connect se ainda se aplicam.
 
 1. Classificacao etaria ainda nao foi preenchida. O primeiro PATCH falhou porque `gambling` e `healthOrWellnessTopics` sao booleanos e `kidsAgeBand` aceita apenas faixas infantis.
 2. Categoria primaria ainda nao foi definida. Categoria planejada: `BOOKS`.

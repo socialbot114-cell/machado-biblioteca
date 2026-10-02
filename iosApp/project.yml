@@ -72,7 +72,7 @@ targets:
           /usr/libexec/PlistBuddy -c 'Add :CFBundleIcons:CFBundlePrimaryIcon:CFBundleIconName string AppIcon' "$app_bundle/Info.plist"
     settings:
       base:
-        CURRENT_PROJECT_VERSION: "24"
+        CURRENT_PROJECT_VERSION: "25"
         MARKETING_VERSION: "1.5.0"
         INFOPLIST_KEY_CFBundleDisplayName: Machado de Assis
         INFOPLIST_KEY_UIBackgroundModes:

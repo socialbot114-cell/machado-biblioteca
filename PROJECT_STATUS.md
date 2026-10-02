@@ -33,7 +33,7 @@ Existe uma segunda app incorreta, criada durante os testes:
 
 - Workflow final aprovado: `34540409036`
 - URL: https://github.com/socialbot114-cell/machado-biblioteca/actions/runs/34540409036
-- Proximo build: `1.5.0 (24)` na app `6810760794`.
+- Proximo build: `1.5.0 (25)` na app `6810760794`.
 - Versao e build ficam em `iosApp/project.yml` (`MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`) e em `env` de `.github/workflows/ios-release.yml` (`APP_VERSION`, `APP_BUILD`). Mantenha os dois iguais e aumente o build a cada envio.
 - Build ID: `12324d89-89e4-4025-9596-4c6de3b0b8da`
 - O build foi associado a `App Store version 1.0`.
